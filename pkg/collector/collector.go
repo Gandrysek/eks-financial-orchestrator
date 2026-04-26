@@ -94,23 +94,16 @@ func (c *DefaultCostCollector) collectPodMetrics(ctx context.Context) ([]PodMetr
 	}
 
 	// Build a lookup of pod objects for labels and node assignment.
+	// Use a single cluster-wide list to avoid N+1 API calls per namespace.
 	podLookup := make(map[string]*corev1.Pod)
-	namespaces, err := c.kubeClient.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+	podList, err := c.kubeClient.CoreV1().Pods("").List(ctx, metav1.ListOptions{})
 	if err != nil {
-		return nil, fmt.Errorf("listing namespaces: %w", err)
+		return nil, fmt.Errorf("listing pods: %w", err)
 	}
-	for i := range namespaces.Items {
-		ns := namespaces.Items[i].Name
-		podList, err := c.kubeClient.CoreV1().Pods(ns).List(ctx, metav1.ListOptions{})
-		if err != nil {
-			c.logger.Error(err, "failed to list pods in namespace", "namespace", ns)
-			continue
-		}
-		for j := range podList.Items {
-			pod := &podList.Items[j]
-			key := pod.Namespace + "/" + pod.Name
-			podLookup[key] = pod
-		}
+	for j := range podList.Items {
+		pod := &podList.Items[j]
+		key := pod.Namespace + "/" + pod.Name
+		podLookup[key] = pod
 	}
 
 	var result []PodMetrics
@@ -347,7 +340,21 @@ func (c *DefaultCostCollector) AllocateSharedCosts(ctx context.Context, costs *A
 		"namespaces", len(costs.ByNamespace),
 	)
 
-	result := allocateSharedCosts(costs)
+	// Fetch namespace labels from K8s so custom shared namespaces
+	// (finops.eks.io/shared=true) are recognized.
+	nsLabels := make(map[string]map[string]string)
+	if c.kubeClient != nil {
+		nsList, err := c.kubeClient.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
+		if err != nil {
+			c.logger.Error(err, "failed to list namespaces for shared cost labels, using name-based detection only")
+		} else {
+			for i := range nsList.Items {
+				nsLabels[nsList.Items[i].Name] = nsList.Items[i].Labels
+			}
+		}
+	}
+
+	result := allocateSharedCostsWithLabels(costs, nsLabels)
 
 	c.logger.Info("shared cost allocation complete",
 		"namespaces", len(result.ByNamespace),

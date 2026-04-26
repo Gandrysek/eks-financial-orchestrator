@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS cost_records (
     network_cost    NUMERIC(12,6),
     storage_cost    NUMERIC(12,6),
     total_cost      NUMERIC(12,6),
-    is_approximate  BOOLEAN DEFAULT FALSE
+    is_approximate  BOOLEAN DEFAULT FALSE,
+    UNIQUE (time, namespace, pod_name)
 );
 
 SELECT create_hypertable('cost_records', 'time');

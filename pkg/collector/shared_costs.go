@@ -57,6 +57,12 @@ func isSystemNamespace(namespace string, labels map[string]string) bool {
 //   - No non-system namespaces → shared costs remain unallocated (no recipients).
 //   - All namespaces are system namespaces → same as above.
 func allocateSharedCosts(costs *AggregatedCosts) *AggregatedCosts {
+	return allocateSharedCostsWithLabels(costs, nil)
+}
+
+// allocateSharedCostsWithLabels is the label-aware version that accepts
+// namespace labels to correctly identify custom shared namespaces.
+func allocateSharedCostsWithLabels(costs *AggregatedCosts, nsLabels map[string]map[string]string) *AggregatedCosts {
 	if costs == nil {
 		return nil
 	}
@@ -65,11 +71,12 @@ func allocateSharedCosts(costs *AggregatedCosts) *AggregatedCosts {
 		return costs
 	}
 
-	// Partition namespaces into system and non-system.
+	// Partition namespaces into system and non-system using actual labels.
 	var systemNS []string
 	var nonSystemNS []string
 	for nsName := range costs.ByNamespace {
-		if isSystemNamespace(nsName, nil) {
+		labels := nsLabels[nsName] // may be nil if labels weren't fetched
+		if isSystemNamespace(nsName, labels) {
 			systemNS = append(systemNS, nsName)
 		} else {
 			nonSystemNS = append(nonSystemNS, nsName)

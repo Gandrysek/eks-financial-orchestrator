@@ -64,7 +64,7 @@ func (f *AWSCostFetcher) FetchCosts(ctx context.Context, start, end time.Time) (
 				Start: aws.String(start.Format(dateFormat)),
 				End:   aws.String(end.Format(dateFormat)),
 			},
-			Granularity: cetypes.GranularityDaily,
+			Granularity: cetypes.GranularityHourly,
 			Metrics:     []string{"UnblendedCost"},
 			GroupBy: []cetypes.GroupDefinition{
 				{
