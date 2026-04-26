@@ -1,0 +1,60 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: eks-financial-orchestrator-viewer
+  labels:
+    app.kubernetes.io/name: eks-financial-orchestrator
+    app.kubernetes.io/component: rbac
+rules:
+  - apiGroups: ["finops.eks.io"]
+    resources: ["financialpolicies", "costreports", "optimizationactions"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: eks-financial-orchestrator-editor
+  labels:
+    app.kubernetes.io/name: eks-financial-orchestrator
+    app.kubernetes.io/component: rbac
+rules:
+  - apiGroups: ["finops.eks.io"]
+    resources: ["financialpolicies"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: ["finops.eks.io"]
+    resources: ["financialpolicies/status"]
+    verbs: ["get"]
+  - apiGroups: ["finops.eks.io"]
+    resources: ["costreports", "optimizationactions"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: eks-financial-orchestrator-admin
+  labels:
+    app.kubernetes.io/name: eks-financial-orchestrator
+    app.kubernetes.io/component: rbac
+rules:
+  - apiGroups: ["finops.eks.io"]
+    resources: ["financialpolicies", "costreports", "optimizationactions"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["finops.eks.io"]
+    resources: ["financialpolicies/status", "costreports/status", "optimizationactions/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["get", "list", "watch", "create"]
+  - apiGroups: [""]
+    resources: ["nodes", "pods", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods/eviction"]
+    verbs: ["create"]

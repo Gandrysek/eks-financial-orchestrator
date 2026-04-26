@@ -13,6 +13,7 @@ import (
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	finopsv1alpha1 "github.com/eks-financial-orchestrator/api/v1alpha1"
+	"github.com/eks-financial-orchestrator/pkg/orchestrator"
 	"github.com/eks-financial-orchestrator/pkg/policy"
 )
 
@@ -66,6 +67,15 @@ func main() {
 		Logger: ctrl.Log.WithName("controllers").WithName("FinancialPolicy"),
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "PolicyReconciler")
+		os.Exit(1)
+	}
+
+	if err = (&orchestrator.OrchestratorReconciler{
+		Client: mgr.GetClient(),
+		Scheme: mgr.GetScheme(),
+		Logger: ctrl.Log.WithName("controllers").WithName("Orchestrator"),
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "OrchestratorReconciler")
 		os.Exit(1)
 	}
 

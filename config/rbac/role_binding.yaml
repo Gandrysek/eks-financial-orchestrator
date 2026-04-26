@@ -1,0 +1,51 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: eks-financial-orchestrator-viewer-binding
+  labels:
+    app.kubernetes.io/name: eks-financial-orchestrator
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: eks-financial-orchestrator-viewer
+subjects:
+  - kind: Group
+    name: finops-viewers
+    apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: eks-financial-orchestrator-editor-binding
+  labels:
+    app.kubernetes.io/name: eks-financial-orchestrator
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: eks-financial-orchestrator-editor
+subjects:
+  - kind: Group
+    name: finops-editors
+    apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: eks-financial-orchestrator-admin-binding
+  labels:
+    app.kubernetes.io/name: eks-financial-orchestrator
+    app.kubernetes.io/component: rbac
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: eks-financial-orchestrator-admin
+subjects:
+  - kind: Group
+    name: finops-admins
+    apiGroup: rbac.authorization.k8s.io
+  - kind: ServiceAccount
+    name: eks-financial-orchestrator
+    namespace: finops-system
