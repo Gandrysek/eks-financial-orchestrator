@@ -1,0 +1,34 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test coverage
+cover.out
+cover-*.out
+
+# Go build cache
+*.test
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker
+*.tar
+
+# Kiro AI specs, steering, hooks, and settings
+.kiro/
+
+# Dependency directories
+vendor/
